@@ -166,3 +166,72 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
 @media(prefers-reduced-motion:reduce) {
   .freeze-effect, .freeze-effect::before, .freeze-effect span { animation-duration: .01ms; }
 }
+
+
+/* Fine turno: i risultati si ingrandiscono e l'area si "congela" per un istante. */
+.finger-marker.assigned-marker.finish-marker {
+  width: 96px !important;
+  height: 96px !important;
+  border-width: 4px;
+  box-shadow: 0 8px 28px #1114, 0 0 0 5px #ffffff70;
+  animation: marker-freeze-pop .48s cubic-bezier(.16,.85,.25,1) both;
+}
+.assigned-marker.finish-marker .finger-number {
+  font-size: 42px !important;
+}
+@keyframes marker-freeze-pop {
+  0% { transform: translate(-50%,-50%) scale(.65); filter: brightness(1.8) saturate(1.5); }
+  65% { transform: translate(-50%,-50%) scale(1.12); }
+  100% { transform: translate(-50%,-50%) scale(1); filter: brightness(1) saturate(1); }
+}
+.freeze-effect {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(135deg, #9bf6ff35, #b8a1ff45 35%, #ffb3d945 68%, #a7f3d045);
+  backdrop-filter: blur(3px) saturate(1.8);
+  -webkit-backdrop-filter: blur(3px) saturate(1.8);
+  animation: screen-freeze 1.25s ease-out both;
+}
+.freeze-effect::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  background:
+    conic-gradient(from 0deg at 50% 50%, #ffffff00 0deg, #ffffffa8 28deg, #7deaff80 52deg, #ffffff00 85deg, #c4a7ff90 125deg, #ffffff00 165deg, #ffb8dc90 205deg, #ffffff00 250deg, #9af5e590 300deg, #ffffff00 360deg);
+  animation: freeze-prism 1.25s cubic-bezier(.15,.7,.2,1) both;
+}
+.freeze-effect::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .9;
+  background:
+    radial-gradient(ellipse at 50% 50%, #ffffffc9 0 1%, #b9f4ff80 3%, transparent 23%),
+    linear-gradient(115deg, transparent 35%, #ffffff85 48%, transparent 57%),
+    linear-gradient(25deg, transparent 40%, #c8b8ff70 50%, transparent 60%);
+  clip-path: polygon(50% 0,56% 36%,100% 50%,60% 57%,50% 100%,43% 61%,0 50%,40% 42%);
+  animation: freeze-crystal .85s ease-out both;
+}
+@keyframes screen-freeze {
+  0% { opacity: 0; backdrop-filter: blur(0) saturate(1); }
+  18%, 58% { opacity: 1; backdrop-filter: blur(5px) saturate(2); }
+  100% { opacity: 0; backdrop-filter: blur(0) saturate(1); }
+}
+@keyframes freeze-prism {
+  0% { transform: rotate(-35deg) scale(.15); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: rotate(35deg) scale(1.05); opacity: 0; }
+}
+@keyframes freeze-crystal {
+  0% { opacity: 0; transform: scale(.05) rotate(-20deg); }
+  25% { opacity: 1; }
+  65% { opacity: .9; transform: scale(1.1) rotate(0); }
+  100% { opacity: 0; transform: scale(1.3) rotate(8deg); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .freeze-effect, .freeze-effect::before, .freeze-effect::after,
+  .finger-marker.assigned-marker.finish-marker { animation-duration: .01ms; }
+}
