@@ -10,7 +10,7 @@
     { name: "Giallo", bg: "#facc15", fg: "#713f12" },
     { name: "Fucsia", bg: "#e879f9", fg: "#701a75" }
   ];
-  let mode = "first", teamCount = 2, locked = false, timer = null, touches = new Map(), participants = [], nextColor = 0, winnerOverlay = null;
+  let mode = "first", teamCount = 2, locked = false, timer = null, touches = new Map(), participants = [], nextColor = 0, winnerOverlay = null, lastRandomOrder = null;
   const DRAW_DELAY = 3000;
 
   document.querySelectorAll(".mode-card").forEach(card => {
@@ -130,7 +130,22 @@
       return;
     }
     locked = true;
-    const randomOrder = shuffle([...touches.keys()]);
+    const activeIds = [...touches.keys()];
+    let randomOrder = shuffle(activeIds);
+    // Evita di ripetere consecutivamente la stessa estrazione con gli stessi partecipanti.
+    if (lastRandomOrder && activeIds.length > 1 &&
+        lastRandomOrder.length === randomOrder.length &&
+        activeIds.every(id => lastRandomOrder.includes(id)) &&
+        randomOrder.every((id, index) => id === lastRandomOrder[index])) {
+      for (let attempt = 0; attempt < 8 && randomOrder.every((id, index) => id === lastRandomOrder[index]); attempt++) {
+        randomOrder = shuffle(activeIds);
+      }
+      if (randomOrder.every((id, index) => id === lastRandomOrder[index])) {
+        const swapIndex = 1 + randomInt(randomOrder.length - 1);
+        [randomOrder[0], randomOrder[swapIndex]] = [randomOrder[swapIndex], randomOrder[0]];
+      }
+    }
+    lastRandomOrder = [...randomOrder];
     if (mode === "first") {
       const winnerId = randomOrder[0];
       participants = [{ id: winnerId, order: 1, team: 0 }];
