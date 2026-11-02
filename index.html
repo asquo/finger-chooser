@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6ff">
+  <meta name="description" content="Scegli chi inizia, metti in ordine i partecipanti o dividili in squadre.">
+  <title>Finger Chooser</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">✦</span><span>Finger Chooser</span></div>
+      <button id="installBtn" class="install-btn" hidden>Installa app</button>
+    </header>
+    <section id="setup" class="setup-panel">
+      <p class="eyebrow">SCEGLI LA MODALITÀ</p>
+      <div class="mode-grid" role="group" aria-label="Modalità di gioco">
+        <button class="mode-card selected" data-mode="first" aria-pressed="true"><span class="mode-icon">☝️</span><strong>Primo</strong><small>Vince il primo dito</small></button>
+        <button class="mode-card" data-mode="order" aria-pressed="false"><span class="mode-icon">🔢</span><strong>In ordine</strong><small>Conta l'ordine di arrivo</small></button>
+        <button class="mode-card" data-mode="teams" aria-pressed="false"><span class="mode-icon">🎨</span><strong>A squadre</strong><small>Assegna i colori ai team</small></button>
+      </div>
+      <div id="teamSettings" class="team-settings" hidden>
+        <label for="teamCount">Numero di squadre</label>
+        <div class="stepper"><button id="teamMinus" aria-label="Diminuisci squadre">−</button><output id="teamCount" for="teamMinus teamPlus">2</output><button id="teamPlus" aria-label="Aumenta squadre">+</button></div>
+        <p class="hint">Le squadre vengono assegnate a turno, seguendo l'ordine dei tocchi.</p>
+      </div>
+      <button id="startBtn" class="primary-btn">Inizia a scegliere <span>→</span></button>
+    </section>
+    <section id="play" class="play-panel" hidden>
+      <div class="play-heading"><div><p class="eyebrow" id="modeLabel">MODALITÀ PRIMO</p><h1 id="instruction">Appoggiate un dito sullo schermo</h1><p class="subinstruction" id="subinstruction">La scelta resterà visibile finché non ricominci.</p></div><div class="live-indicator"><i></i><span id="statusText">In attesa</span></div></div>
+      <div id="touchArea" class="touch-area" aria-label="Area per appoggiare le dita"><div id="emptyState" class="empty-state"><div class="touch-symbol">👆</div><strong>Tutti pronti?</strong><span>Appoggiate qui le dita</span></div><div id="results" class="results" aria-live="polite"></div></div>
+      <div class="play-footer"><span id="participantCount">0 partecipanti</span><button id="restartBtn" class="restart-btn">↻ Ricomincia</button></div>
+      <button id="changeModeBtn" class="text-btn">Cambia modalità</button>
+    </section>
+    <footer>Finger Chooser <span>·</span> Tocchi simultanei, scelta trasparente.</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
