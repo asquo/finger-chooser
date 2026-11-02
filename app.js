@@ -230,13 +230,9 @@
     const effect = document.createElement("div");
     effect.className = "freeze-effect";
     effect.setAttribute("aria-hidden", "true");
-    const label = document.createElement("span");
-    label.textContent = "FREEZE!";
-    effect.append(label);
     touchArea.append(effect);
     effect.addEventListener("animationend", () => effect.remove(), { once: true });
-    // Fallback nel caso animationend non venga emesso dal browser.
-    setTimeout(() => effect.remove(), 1200);
+    setTimeout(() => effect.remove(), 1600);
   }
 
   function showWinnerOverlay(touch) {
