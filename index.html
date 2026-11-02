@@ -14,7 +14,7 @@
   <main class="app">
     <header class="topbar">
       <div class="brand"><span class="brand-mark">✦</span><span>Finger Chooser</span></div>
-      <button id="installBtn" class="install-btn" hidden>Installa app</button>
+      <div class="topbar-actions"><button id="themeBtn" class="theme-btn" aria-label="Attiva tema scuro">☾</button><button id="installBtn" class="install-btn" hidden>Installa app</button></div>
     </header>
     <section id="setup" class="setup-panel">
       <p class="eyebrow">SCEGLI LA MODALITÀ</p>
@@ -33,10 +33,9 @@
     <section id="play" class="play-panel" hidden>
       <div class="play-heading"><div><p class="eyebrow" id="modeLabel">MODALITÀ CASUALE</p><h1 id="instruction">Appoggiate tutti un dito</h1><p class="subinstruction" id="subinstruction">La scelta avverrà dopo un intervallo casuale.</p></div><div class="live-indicator"><i></i><span id="statusText">In attesa</span></div></div>
       <div id="touchArea" class="touch-area" aria-label="Area per appoggiare le dita"><div id="emptyState" class="empty-state"><div class="touch-symbol">👆</div><strong>Tutti pronti?</strong><span>Appoggiate qui le dita</span></div><div id="results" class="results" aria-live="polite"></div></div>
-      <div class="play-footer"><span id="participantCount">0 partecipanti</span><button id="restartBtn" class="restart-btn">↻ Ricomincia</button></div>
-      <button id="changeModeBtn" class="text-btn">Cambia modalità</button>
+      <div class="play-footer"><span id="participantCount">0 partecipanti</span><div class="footer-actions"><button id="restartBtn" class="restart-btn">↻ Ricomincia</button><button id="changeModeBtn" class="text-btn">Cambia modalità</button></div></div>
     </section>
-    <footer>Finger Chooser <span>·</span> Tocchi simultanei, scelta casuale.<br><span class="app-version">Versione 1.2.0 · build 2026.11.02.2</span></footer>
+    <footer>Finger Chooser <span>·</span> Tocchi simultanei, scelta casuale.<br><span class="app-version">Versione 1.3.0 · build 2026.11.02.3</span></footer>
   </main>
   <script src="app.js"></script>
 </body>
