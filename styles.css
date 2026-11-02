@@ -395,3 +395,20 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
   .finger-marker.assigned-marker.finish-marker { animation: none; }
   .freeze-effect { opacity: .35; }
 }
+
+
+/* Freeze leggibile ma delicato: un velo breve che segnala la fine del turno. */
+.freeze-effect {
+  background: rgba(105, 132, 148, .20);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: screen-freeze-visible 850ms ease-out both;
+}
+@keyframes screen-freeze-visible {
+  0% { opacity: 0; }
+  18%, 52% { opacity: .9; }
+  100% { opacity: 0; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .freeze-effect { animation: none; opacity: .18; }
+}
