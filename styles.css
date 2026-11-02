@@ -83,3 +83,15 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
   50%{box-shadow:0 0 0 16px #ffffff55,0 8px 30px #1115;filter:saturate(1.35);scale:1.12}
 }
 @media(prefers-reduced-motion:reduce){.winner-marker{animation:none}}
+
+/* Dopo l'estrazione, ordine e squadre restano leggibili nei soli marker piccoli. */
+.finger-marker.assigned-marker {
+  width: 54px;
+  height: 54px;
+  border-width: 2px;
+  opacity: 1;
+  box-shadow: 0 2px 10px #1112;
+}
+.assigned-marker .finger-number {
+  font-size: 23px;
+}
