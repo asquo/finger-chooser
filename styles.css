@@ -314,3 +314,51 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
   .freeze-effect { opacity:.9; }
   .freeze-effect::before, .freeze-effect::after { opacity:.8; }
 }
+
+
+/* Freeze più morbido: segnale evidente senza lampi o contrasti abbaglianti. */
+.freeze-effect {
+  background:
+    radial-gradient(ellipse at center, #b9e9f52b 0%, #b9d9f52e 55%, #a9b8e52b 100%),
+    linear-gradient(135deg, #9bf6ff20, #b8a1ff26 45%, #a7f3d020);
+  backdrop-filter: blur(2px) saturate(1.18);
+  -webkit-backdrop-filter: blur(2px) saturate(1.18);
+  animation: screen-freeze-soft 1.35s ease-out both;
+}
+.freeze-effect::before {
+  inset: -20%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    #b8e8f45c 55deg,
+    transparent 105deg,
+    #c4b8f36b 165deg,
+    transparent 220deg,
+    #a9e9df60 285deg,
+    transparent 360deg
+  );
+  animation: freeze-prism-soft 1.35s ease-out both;
+}
+.freeze-effect::after {
+  opacity: .58;
+  background:
+    linear-gradient(115deg, transparent 38%, #d9f5ff55 50%, transparent 62%),
+    linear-gradient(25deg, transparent 38%, #d9d0ff45 50%, transparent 62%);
+  clip-path: polygon(50% 0,56% 36%,100% 50%,60% 57%,50% 100%,43% 61%,0 50%,40% 42%);
+  animation: freeze-crystal-soft 1s ease-out both;
+}
+@keyframes screen-freeze-soft {
+  0% { opacity: 0; }
+  18%, 58% { opacity: .82; }
+  100% { opacity: 0; }
+}
+@keyframes freeze-prism-soft {
+  0% { transform: rotate(-18deg) scale(.35); opacity: 0; }
+  30% { opacity: .7; }
+  100% { transform: rotate(18deg) scale(1); opacity: 0; }
+}
+@keyframes freeze-crystal-soft {
+  0% { opacity: 0; transform: scale(.18) rotate(-10deg); }
+  28% { opacity: .62; }
+  100% { opacity: 0; transform: scale(1.12) rotate(5deg); }
+}
