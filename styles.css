@@ -69,3 +69,17 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
  .play-footer{min-height:58px}.footer-actions{gap:6px}.restart-btn,.text-btn{padding:11px 12px;font-size:11px}
 }
 @media(max-height:650px){.app{padding-top:8px;padding-bottom:6px}.play-panel{padding-top:6px}.play-heading .subinstruction{display:none}.touch-area{margin:7px 0}.play-footer{min-height:46px}footer{padding-top:3px}}
+
+/* Etichette direttamente nei cerchi sotto le dita */
+.finger-label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1}
+.finger-number{font-size:27px;font-weight:950;color:#17152b;text-shadow:0 1px 2px #fff9}
+.finger-team{font-size:15px;font-weight:950;color:#17152b;text-shadow:0 1px 2px #fff9}
+.assigned-marker{opacity:1}
+.winner-marker{animation:winner-pulse 1.25s ease-in-out infinite;transform:translate(-50%,-50%)}
+.winner-marker .finger-number{font-size:38px}
+.winner-marker .finger-team{display:none}
+@keyframes winner-pulse{
+  0%,100%{box-shadow:0 0 0 0 #ffffff00,0 4px 18px #1114;filter:saturate(1);scale:1}
+  50%{box-shadow:0 0 0 16px #ffffff55,0 8px 30px #1115;filter:saturate(1.35);scale:1.12}
+}
+@media(prefers-reduced-motion:reduce){.winner-marker{animation:none}}
