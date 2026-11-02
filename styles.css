@@ -412,3 +412,23 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
 @media(prefers-reduced-motion:reduce) {
   .freeze-effect { animation: none; opacity: .18; }
 }
+
+
+/* Freeze con contrasto calibrato per entrambi i temi. */
+.freeze-effect {
+  background: rgba(76, 99, 145, .38);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: screen-freeze-contrast 760ms ease-out both;
+}
+:root[data-theme="dark"] .freeze-effect {
+  background: rgba(174, 194, 231, .30);
+}
+@keyframes screen-freeze-contrast {
+  0% { opacity: 0; }
+  16%, 58% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .freeze-effect { animation: none; opacity: .8; }
+}
