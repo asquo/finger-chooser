@@ -362,3 +362,36 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
   28% { opacity: .62; }
   100% { opacity: 0; transform: scale(1.12) rotate(5deg); }
 }
+
+
+/* Freeze discreto: conferma visiva breve, senza flash o bagliori. */
+.freeze-effect {
+  background: rgba(74, 91, 105, .10);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: screen-freeze-gentle .7s ease-out both;
+}
+.freeze-effect::before,
+.freeze-effect::after {
+  content: none;
+  display: none;
+}
+.finger-marker.assigned-marker.finish-marker {
+  box-shadow: 0 4px 14px #1112;
+  animation: marker-freeze-gentle .32s ease-out both;
+}
+@keyframes screen-freeze-gentle {
+  0% { opacity: 0; }
+  25% { opacity: .7; }
+  100% { opacity: 0; }
+}
+@keyframes marker-freeze-gentle {
+  0% { transform: translate(-50%,-50%) scale(.96); }
+  65% { transform: translate(-50%,-50%) scale(1.035); }
+  100% { transform: translate(-50%,-50%) scale(1); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .freeze-effect,
+  .finger-marker.assigned-marker.finish-marker { animation: none; }
+  .freeze-effect { opacity: .35; }
+}
