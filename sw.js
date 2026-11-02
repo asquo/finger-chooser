@@ -1,4 +1,4 @@
-const CACHE = "finger-chooser-v4";
+const CACHE = "finger-chooser-v5";
 const FILES = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.webmanifest", "./icons/icon.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)));
