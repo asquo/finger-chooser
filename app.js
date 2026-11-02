@@ -68,10 +68,22 @@
     $("subinstruction").textContent = "La scelta avverrà dopo 3 secondi.";
   }
 
+  function randomInt(max) {
+    if (max <= 1) return 0;
+    if (window.crypto?.getRandomValues) {
+      const range = 0x100000000;
+      const limit = Math.floor(range / max) * max;
+      const value = new Uint32Array(1);
+      do { window.crypto.getRandomValues(value); } while (value[0] >= limit);
+      return value[0] % max;
+    }
+    return Math.floor(Math.random() * max);
+  }
+
   function shuffle(items) {
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = randomInt(i + 1);
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
@@ -88,10 +100,15 @@
     const rect = touchArea.getBoundingClientRect();
     const playerNumber = touches.size + 1;
     const markerLabel = document.createElement("span");
-    markerLabel.className = "finger-number";
-    markerLabel.textContent = playerNumber;
+    markerLabel.className = "finger-label";
+    const numberLabel = document.createElement("span");
+    numberLabel.className = "finger-number";
+    numberLabel.textContent = playerNumber;
+    const teamLabel = document.createElement("span");
+    teamLabel.className = "finger-team";
+    markerLabel.append(numberLabel, teamLabel);
     marker.append(markerLabel);
-    const touch = { color, marker, x: e.clientX, y: e.clientY, playerNumber };
+    const touch = { color, marker, x: e.clientX, y: e.clientY, playerNumber, numberLabel, teamLabel };
     touches.set(e.pointerId, touch);
     positionMarker(touch, e.clientX - rect.left, e.clientY - rect.top);
     emptyState.hidden = true;
@@ -115,14 +132,27 @@
     locked = true;
     const randomOrder = shuffle([...touches.keys()]);
     if (mode === "first") {
-      participants = [{ id: randomOrder[0], order: 1, team: 0 }];
-      showWinnerOverlay(touches.get(randomOrder[0]));
+      const winnerId = randomOrder[0];
+      participants = [{ id: winnerId, order: 1, team: 0 }];
+      for (const [id, touch] of touches) {
+        if (id !== winnerId) touch.marker.remove();
+      }
+      showWinnerOverlay(touches.get(winnerId));
     } else {
       participants = randomOrder.map((id, index) => ({
         id,
         order: index + 1,
         team: mode === "teams" ? index % teamCount : -1
       }));
+      participants.forEach(p => {
+        const touch = touches.get(p.id);
+        const color = mode === "teams" ? palette[p.team % palette.length] : palette[(p.order - 1) % palette.length];
+        touch.marker.style.background = color.bg;
+        touch.marker.style.borderColor = color.fg;
+        touch.numberLabel.textContent = p.order;
+        touch.teamLabel.textContent = mode === "teams" ? `S${p.team + 1}` : "";
+        touch.marker.classList.add("assigned-marker");
+      });
     }
     render();
   }
@@ -198,19 +228,6 @@
     $("statusText").textContent = "Scelta effettuata";
     $("participantCount").textContent = `${participants.length} ${participants.length === 1 ? "partecipante" : "partecipanti"}`;
     results.replaceChildren();
-    if (mode === "first") return;
-    participants.forEach(p => {
-      let color, number, caption, detail = "";
-      if (mode === "order") {
-        color = palette[(p.order - 1) % palette.length];
-        number = p.order; caption = ordinal(p.order); detail = "ordine casuale";
-      } else {
-        color = palette[p.team % palette.length];
-        number = p.order; caption = `Squadra ${p.team + 1}`; detail = "";
-      }
-      results.append(makeChip(number, caption, detail, color, false));
-    });
-    $("instruction").textContent = "";
   }
 
   function makeChip(number, caption, detail, color, winner) {
