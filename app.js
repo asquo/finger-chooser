@@ -130,6 +130,7 @@
       return;
     }
     locked = true;
+    playFreezeAnimation();
     const activeIds = [...touches.keys()];
     let randomOrder = shuffle(activeIds);
     // Evita di ripetere consecutivamente la stessa estrazione con gli stessi partecipanti.
@@ -152,7 +153,9 @@
       for (const [id, touch] of touches) {
         if (id !== winnerId) touch.marker.remove();
       }
-      showWinnerOverlay(touches.get(winnerId));
+      const winningTouch = touches.get(winnerId);
+      winningTouch.marker.classList.add("finish-marker");
+      showWinnerOverlay(winningTouch);
     } else {
       participants = randomOrder.map((id, index) => ({
         id,
@@ -166,7 +169,7 @@
         touch.marker.style.borderColor = color.fg;
         touch.numberLabel.textContent = mode === "teams" ? String(p.team + 1) : String(p.order);
         touch.teamLabel.textContent = "";
-        touch.marker.classList.add("assigned-marker");
+        touch.marker.classList.add("assigned-marker", "finish-marker");
       });
     }
     render();
@@ -221,6 +224,19 @@
   function positionMarker(touch, x, y) {
     touch.marker.style.left = x + "px";
     touch.marker.style.top = y + "px";
+  }
+
+  function playFreezeAnimation() {
+    const effect = document.createElement("div");
+    effect.className = "freeze-effect";
+    effect.setAttribute("aria-hidden", "true");
+    const label = document.createElement("span");
+    label.textContent = "FREEZE!";
+    effect.append(label);
+    touchArea.append(effect);
+    effect.addEventListener("animationend", () => effect.remove(), { once: true });
+    // Fallback nel caso animationend non venga emesso dal browser.
+    setTimeout(() => effect.remove(), 1200);
   }
 
   function showWinnerOverlay(touch) {
