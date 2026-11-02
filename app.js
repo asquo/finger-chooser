@@ -10,7 +10,9 @@
     { name: "Limone", bg: "#fff3cc", fg: "#94742b" },
     { name: "Rosa", bg: "#ffe3ee", fg: "#a64e73" }
   ];
-  let mode = "first", teamCount = 2, locked = false, touches = new Map(), participants = [];
+  let mode = "first", teamCount = 2, locked = false, timer = null, touches = new Map(), participants = [];
+  const MIN_DELAY = 2000, MAX_DELAY = 5000;
+
   document.querySelectorAll(".mode-card").forEach(card => {
     card.addEventListener("click", () => {
       mode = card.dataset.mode;
@@ -28,40 +30,107 @@
   $("startBtn").addEventListener("click", showPlay);
   $("changeModeBtn").addEventListener("click", () => { showSetup(); resetRound(); });
   $("restartBtn").addEventListener("click", resetRound);
+
   function showPlay() {
     setup.hidden = true; play.hidden = false;
-    const labels = { first: "MODALITÀ PRIMO", order: "MODALITÀ IN ORDINE", teams: "MODALITÀ A SQUADRE" };
+    const labels = { first: "MODALITÀ CASUALE", order: "MODALITÀ IN ORDINE", teams: "MODALITÀ A SQUADRE" };
     $("modeLabel").textContent = labels[mode];
-    $("instruction").textContent = mode === "first" ? "Chi sarà il più veloce?" : "Appoggiate un dito sullo schermo";
-    $("subinstruction").textContent = mode === "first" ? "Il primo tocco vince. Il risultato resterà visibile." : "Ogni dito viene registrato una sola volta. Il risultato resterà visibile.";
+    $("instruction").textContent = "Appoggiate tutti un dito";
+    $("subinstruction").textContent = "Attendete il segnale: la scelta avverrà dopo qualche secondo.";
     resetRound();
   }
   function showSetup() { play.hidden = true; setup.hidden = false; }
+
   function resetRound() {
+    if (timer !== null) clearTimeout(timer);
+    timer = null;
     locked = false; touches.clear(); participants = [];
     results.replaceChildren(); emptyState.hidden = false;
     $("statusText").textContent = "In attesa";
     $("participantCount").textContent = "0 partecipanti";
-    $("instruction").textContent = mode === "first" ? "Chi sarà il più veloce?" : "Appoggiate un dito sullo schermo";
+    $("instruction").textContent = "Appoggiate tutti un dito";
+    $("subinstruction").textContent = "La scelta avverrà dopo un intervallo casuale.";
   }
+
+  function shuffle(items) {
+    const shuffled = [...items];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
   function registerPointer(e) {
     if (locked || touches.has(e.pointerId)) return;
-    if (mode === "first") {
-      locked = true; participants = [{ id: e.pointerId, order: 1, team: 0 }]; render(); return;
+    touches.set(e.pointerId, true);
+    emptyState.hidden = true;
+    $("statusText").textContent = "In attesa della scelta…";
+    $("participantCount").textContent = `${touches.size} ${touches.size === 1 ? "partecipante" : "partecipanti"}`;
+    $("instruction").textContent = "Tenete le dita appoggiate";
+    if (timer === null) {
+      const delay = MIN_DELAY + Math.random() * (MAX_DELAY - MIN_DELAY);
+      timer = setTimeout(resolveRound, delay);
     }
-    const order = participants.length + 1;
-    const team = mode === "teams" ? (order - 1) % teamCount : -1;
-    participants.push({ id: e.pointerId, order, team });
-    touches.set(e.pointerId, true); render();
   }
+
+  function resolveRound() {
+    timer = null;
+    if (locked) return;
+    const count = touches.size;
+    if (!count) {
+      emptyState.hidden = false;
+      $("statusText").textContent = "In attesa";
+      $("instruction").textContent = "Appoggiate tutti un dito";
+      return;
+    }
+    locked = true;
+    const randomOrder = shuffle([...touches.keys()]);
+    if (mode === "first") {
+      participants = [{ id: randomOrder[0], order: 1, team: 0 }];
+    } else {
+      participants = randomOrder.map((id, index) => ({
+        id,
+        order: index + 1,
+        team: mode === "teams" ? index % teamCount : -1
+      }));
+    }
+    render();
+  }
+
   touchArea.addEventListener("pointerdown", e => {
     e.preventDefault();
     try { touchArea.setPointerCapture(e.pointerId); } catch (_) {}
     registerPointer(e);
   });
-  touchArea.addEventListener("pointerup", e => { e.preventDefault(); });
-  touchArea.addEventListener("pointercancel", e => { e.preventDefault(); });
+  touchArea.addEventListener("pointerup", e => {
+    e.preventDefault();
+    if (!locked) {
+      touches.delete(e.pointerId);
+      $("participantCount").textContent = `${touches.size} ${touches.size === 1 ? "partecipante" : "partecipanti"}`;
+      if (!touches.size && timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+        emptyState.hidden = false;
+        $("statusText").textContent = "In attesa";
+        $("instruction").textContent = "Appoggiate tutti un dito";
+      }
+    }
+  });
+  touchArea.addEventListener("pointercancel", e => {
+    if (!locked) {
+      touches.delete(e.pointerId);
+      $("participantCount").textContent = `${touches.size} ${touches.size === 1 ? "partecipante" : "partecipanti"}`;
+      if (!touches.size && timer !== null) {
+        clearTimeout(timer); timer = null;
+        emptyState.hidden = false;
+        $("statusText").textContent = "In attesa";
+        $("instruction").textContent = "Appoggiate tutti un dito";
+      }
+    }
+  });
   touchArea.addEventListener("contextmenu", e => e.preventDefault());
+
   function render() {
     if (!participants.length) return;
     emptyState.hidden = true;
@@ -69,17 +138,24 @@
     $("participantCount").textContent = `${participants.length} ${participants.length === 1 ? "partecipante" : "partecipanti"}`;
     results.replaceChildren();
     if (mode === "first") {
-      results.append(makeChip("✓", "PRIMO", "Vincitore", palette[0], true));
-      $("instruction").textContent = "Abbiamo un vincitore!"; return;
+      results.append(makeChip("✓", "SCELTO", "Dito estratto a caso", palette[0], true));
+      $("instruction").textContent = "Questo è il dito scelto!";
+      return;
     }
     participants.forEach(p => {
       let color, number, caption, detail = "";
-      if (mode === "order") { color = palette[(p.order - 1) % palette.length]; number = p.order; caption = ordinal(p.order); detail = "ordine di arrivo"; }
-      else { color = palette[p.team % palette.length]; number = p.order; caption = `Squadra ${p.team + 1}`; detail = color.name; }
+      if (mode === "order") {
+        color = palette[(p.order - 1) % palette.length];
+        number = p.order; caption = ordinal(p.order); detail = "ordine casuale";
+      } else {
+        color = palette[p.team % palette.length];
+        number = p.order; caption = `Squadra ${p.team + 1}`; detail = color.name;
+      }
       results.append(makeChip(number, caption, detail, color, false));
     });
-    $("instruction").textContent = mode === "order" ? "Ordine di selezione" : "Squadre assegnate";
+    $("instruction").textContent = mode === "order" ? "Ecco l'ordine casuale!" : "Ecco le squadre!";
   }
+
   function makeChip(number, caption, detail, color, winner) {
     const el = document.createElement("div");
     el.className = `result-chip${winner ? " winner" : ""}`;
@@ -90,6 +166,7 @@
     el.append(n, c, d); return el;
   }
   function ordinal(n) { return `${n}°`; }
+
   let deferredPrompt = null;
   window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault(); deferredPrompt = e; $("installBtn").hidden = false;
