@@ -3,12 +3,12 @@
   const setup = $("setup"), play = $("play"), teamSettings = $("teamSettings");
   const touchArea = $("touchArea"), emptyState = $("emptyState"), results = $("results");
   const palette = [
-    { name: "Lavanda", bg: "#e9eaff", fg: "#555db5" },
-    { name: "Menta", bg: "#dcf5e9", fg: "#397c5b" },
-    { name: "Pesca", bg: "#ffeadf", fg: "#a85e43" },
-    { name: "Cielo", bg: "#dff0ff", fg: "#3976a5" },
-    { name: "Limone", bg: "#fff3cc", fg: "#94742b" },
-    { name: "Rosa", bg: "#ffe3ee", fg: "#a64e73" }
+    { name: "Viola", bg: "#a78bfa", fg: "#4c1d95" },
+    { name: "Verde", bg: "#4ade80", fg: "#14532d" },
+    { name: "Corallo", bg: "#fb7185", fg: "#881337" },
+    { name: "Azzurro", bg: "#38bdf8", fg: "#0c4a6e" },
+    { name: "Giallo", bg: "#facc15", fg: "#713f12" },
+    { name: "Fucsia", bg: "#e879f9", fg: "#701a75" }
   ];
   let mode = "first", teamCount = 2, locked = false, timer = null, touches = new Map(), participants = [], nextColor = 0, winnerOverlay = null;
   const DRAW_DELAY = 3000;
@@ -29,6 +29,21 @@
   function setTeamCount(n) { teamCount = Math.max(2, Math.min(6, n)); $("teamCount").textContent = teamCount; }
   $("startBtn").addEventListener("click", showPlay);
   $("changeModeBtn").addEventListener("click", () => { showSetup(); resetRound(); });
+  $("themeBtn").addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    $("themeBtn").textContent = next === "dark" ? "☀" : "☾";
+    $("themeBtn").setAttribute("aria-label", next === "dark" ? "Attiva tema chiaro" : "Attiva tema scuro");
+    try { localStorage.setItem("finger-chooser-theme", next); } catch (_) {}
+  });
+  try {
+    const savedTheme = localStorage.getItem("finger-chooser-theme");
+    if (savedTheme === "dark") {
+      document.documentElement.dataset.theme = "dark";
+      $("themeBtn").textContent = "☀";
+      $("themeBtn").setAttribute("aria-label", "Attiva tema chiaro");
+    }
+  } catch (_) {}
   $("restartBtn").addEventListener("click", resetRound);
 
   function showPlay() {
@@ -162,14 +177,16 @@
   function showWinnerOverlay(touch) {
     winnerOverlay = document.createElement("div");
     winnerOverlay.className = "winner-overlay";
-    document.body.append(winnerOverlay);
-    touch.marker.hidden = true;
+    touchArea.append(winnerOverlay);
     updateWinnerOverlay(touch);
   }
 
   function updateWinnerOverlay(touch) {
+    const rect = touchArea.getBoundingClientRect();
+    const x = touch.x - rect.left;
+    const y = touch.y - rect.top;
     const color = touch.color.bg;
-    winnerOverlay.style.background = "radial-gradient(circle 48px at " + touch.x + "px " + touch.y + "px, transparent 0 47px, " + color + " 49px)";
+    winnerOverlay.style.background = "radial-gradient(circle 48px at " + x + "px " + y + "px, transparent 0 47px, " + color + " 49px)";
   }
 
   function render() {
