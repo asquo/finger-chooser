@@ -56,7 +56,7 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
 .finger-marker.winner-marker{width:124px;height:124px;opacity:.72;border-width:4px;z-index:4}
 .winner-marker .finger-number{font-size:34px}
 .winner-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.22}
-.play-heading h1,.play-heading .eyebrow,.play-heading .subinstruction,.live-indicator,#participantCount{display:none!important}
+.play-heading,.live-indicator,#participantCount{display:none!important}
 .empty-state{display:none!important}
 .results{z-index:5}
 .result-chip .number{font-size:clamp(32px,8vw,48px)}
