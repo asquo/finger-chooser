@@ -164,8 +164,8 @@
         const color = mode === "teams" ? palette[p.team % palette.length] : palette[(p.order - 1) % palette.length];
         touch.marker.style.background = color.bg;
         touch.marker.style.borderColor = color.fg;
-        touch.numberLabel.textContent = p.order;
-        touch.teamLabel.textContent = mode === "teams" ? `S${p.team + 1}` : "";
+        touch.numberLabel.textContent = mode === "teams" ? String(p.team + 1) : String(p.order);
+        touch.teamLabel.textContent = "";
         touch.marker.classList.add("assigned-marker");
       });
     }
