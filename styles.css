@@ -235,3 +235,82 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding-top:8px;flex-
   .freeze-effect, .freeze-effect::before, .freeze-effect::after,
   .finger-marker.assigned-marker.finish-marker { animation-duration: .01ms; }
 }
+
+
+/* Fix definitivo: overlay a tutta area e marker finali ben visibili. */
+.freeze-effect {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, #ffffffb8 0%, #a8f0ff80 24%, #c4a7ff65 52%, #ffb8dc55 76%, transparent 100%),
+    linear-gradient(135deg, #9bf6ff88, #b8a1ff88 35%, #ffb3d988 68%, #a7f3d088);
+  backdrop-filter: blur(7px) saturate(2.2);
+  -webkit-backdrop-filter: blur(7px) saturate(2.2);
+  animation: screen-freeze-fixed 1.45s ease-out both;
+}
+.freeze-effect::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  background: conic-gradient(from 0deg, #ffffff00, #ffffffd9, #7deaffbb, #ffffff00, #c4a7ffcc, #ffffff00, #ffb8dccc, #ffffff00, #9af5e5cc, #ffffff00);
+  animation: freeze-prism-fixed 1.45s cubic-bezier(.15,.7,.2,1) both;
+}
+.freeze-effect::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .95;
+  background:
+    radial-gradient(ellipse at 50% 50%, #ffffffed 0 1%, #b9f4ffbb 4%, transparent 30%),
+    linear-gradient(115deg, transparent 30%, #ffffffb8 48%, transparent 60%),
+    linear-gradient(25deg, transparent 35%, #c8b8ff99 50%, transparent 65%);
+  clip-path: polygon(50% 0,56% 36%,100% 50%,60% 57%,50% 100%,43% 61%,0 50%,40% 42%);
+  animation: freeze-crystal-fixed .95s ease-out both;
+}
+.finger-marker.assigned-marker.finish-marker {
+  width: 116px !important;
+  height: 116px !important;
+  border-width: 5px;
+  box-shadow: 0 9px 32px #1115, 0 0 0 7px #ffffff85;
+  animation: marker-freeze-pop-fixed .55s cubic-bezier(.16,.85,.25,1) both;
+}
+.assigned-marker.finish-marker .finger-number {
+  font-size: 48px !important;
+}
+@keyframes screen-freeze-fixed {
+  0% { opacity: 0; }
+  14%, 62% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes freeze-prism-fixed {
+  0% { transform: rotate(-35deg) scale(.12); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: rotate(35deg) scale(1.08); opacity: 0; }
+}
+@keyframes freeze-crystal-fixed {
+  0% { opacity: 0; transform: scale(.04) rotate(-20deg); }
+  25% { opacity: 1; }
+  65% { opacity: .95; transform: scale(1.12) rotate(0); }
+  100% { opacity: 0; transform: scale(1.35) rotate(8deg); }
+}
+@keyframes marker-freeze-pop-fixed {
+  0% { transform: translate(-50%,-50%) scale(.55); filter: brightness(2) saturate(1.8); }
+  65% { transform: translate(-50%,-50%) scale(1.12); }
+  100% { transform: translate(-50%,-50%) scale(1); filter: brightness(1) saturate(1); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .freeze-effect, .freeze-effect::before, .freeze-effect::after,
+  .finger-marker.assigned-marker.finish-marker { animation:none; }
+  .freeze-effect { opacity:.9; }
+  .freeze-effect::before, .freeze-effect::after { opacity:.8; }
+}
