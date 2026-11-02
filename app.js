@@ -10,8 +10,8 @@
     { name: "Limone", bg: "#fff3cc", fg: "#94742b" },
     { name: "Rosa", bg: "#ffe3ee", fg: "#a64e73" }
   ];
-  let mode = "first", teamCount = 2, locked = false, timer = null, touches = new Map(), participants = [];
-  const MIN_DELAY = 2000, MAX_DELAY = 5000;
+  let mode = "first", teamCount = 2, locked = false, timer = null, touches = new Map(), participants = [], nextColor = 0, winnerOverlay = null;
+  const DRAW_DELAY = 3000;
 
   document.querySelectorAll(".mode-card").forEach(card => {
     card.addEventListener("click", () => {
@@ -44,12 +44,13 @@
   function resetRound() {
     if (timer !== null) clearTimeout(timer);
     timer = null;
-    locked = false; touches.clear(); participants = [];
+    locked = false; touches.forEach(t => t.marker.remove()); touches.clear(); participants = []; nextColor = 0;
+    if (winnerOverlay) { winnerOverlay.remove(); winnerOverlay = null; }
     results.replaceChildren(); emptyState.hidden = false;
     $("statusText").textContent = "In attesa";
     $("participantCount").textContent = "0 partecipanti";
     $("instruction").textContent = "Appoggiate tutti un dito";
-    $("subinstruction").textContent = "La scelta avverrà dopo un intervallo casuale.";
+    $("subinstruction").textContent = "La scelta avverrà dopo 3 secondi.";
   }
 
   function shuffle(items) {
@@ -63,14 +64,22 @@
 
   function registerPointer(e) {
     if (locked || touches.has(e.pointerId)) return;
-    touches.set(e.pointerId, true);
+    const color = palette[nextColor++ % palette.length];
+    const marker = document.createElement("span");
+    marker.className = "finger-marker";
+    marker.style.background = color.bg;
+    marker.style.borderColor = color.fg;
+    touchArea.append(marker);
+    const rect = touchArea.getBoundingClientRect();
+    const touch = { color, marker, x: e.clientX, y: e.clientY };
+    touches.set(e.pointerId, touch);
+    positionMarker(touch, e.clientX - rect.left, e.clientY - rect.top);
     emptyState.hidden = true;
     $("statusText").textContent = "In attesa della scelta…";
     $("participantCount").textContent = `${touches.size} ${touches.size === 1 ? "partecipante" : "partecipanti"}`;
     $("instruction").textContent = "Tenete le dita appoggiate";
     if (timer === null) {
-      const delay = MIN_DELAY + Math.random() * (MAX_DELAY - MIN_DELAY);
-      timer = setTimeout(resolveRound, delay);
+      timer = setTimeout(resolveRound, DRAW_DELAY);
     }
   }
 
@@ -88,6 +97,7 @@
     const randomOrder = shuffle([...touches.keys()]);
     if (mode === "first") {
       participants = [{ id: randomOrder[0], order: 1, team: 0 }];
+      showWinnerOverlay(touches.get(randomOrder[0]));
     } else {
       participants = randomOrder.map((id, index) => ({
         id,
@@ -103,9 +113,19 @@
     try { touchArea.setPointerCapture(e.pointerId); } catch (_) {}
     registerPointer(e);
   });
+  touchArea.addEventListener("pointermove", e => {
+    const touch = touches.get(e.pointerId);
+    if (!touch) return;
+    const rect = touchArea.getBoundingClientRect();
+    touch.x = e.clientX; touch.y = e.clientY;
+    positionMarker(touch, e.clientX - rect.left, e.clientY - rect.top);
+    if (locked && mode === "first" && participants[0]?.id === e.pointerId) updateWinnerOverlay(touch);
+  });
   touchArea.addEventListener("pointerup", e => {
     e.preventDefault();
     if (!locked) {
+      const touch = touches.get(e.pointerId);
+      if (touch) touch.marker.remove();
       touches.delete(e.pointerId);
       $("participantCount").textContent = `${touches.size} ${touches.size === 1 ? "partecipante" : "partecipanti"}`;
       if (!touches.size && timer !== null) {
@@ -119,6 +139,8 @@
   });
   touchArea.addEventListener("pointercancel", e => {
     if (!locked) {
+      const touch = touches.get(e.pointerId);
+      if (touch) touch.marker.remove();
       touches.delete(e.pointerId);
       $("participantCount").textContent = `${touches.size} ${touches.size === 1 ? "partecipante" : "partecipanti"}`;
       if (!touches.size && timer !== null) {
@@ -130,6 +152,25 @@
     }
   });
   touchArea.addEventListener("contextmenu", e => e.preventDefault());
+
+
+  function positionMarker(touch, x, y) {
+    touch.marker.style.left = x + "px";
+    touch.marker.style.top = y + "px";
+  }
+
+  function showWinnerOverlay(touch) {
+    winnerOverlay = document.createElement("div");
+    winnerOverlay.className = "winner-overlay";
+    document.body.append(winnerOverlay);
+    touch.marker.hidden = true;
+    updateWinnerOverlay(touch);
+  }
+
+  function updateWinnerOverlay(touch) {
+    const color = touch.color.bg;
+    winnerOverlay.style.background = "radial-gradient(circle 48px at " + touch.x + "px " + touch.y + "px, transparent 0 47px, " + color + " 49px)";
+  }
 
   function render() {
     if (!participants.length) return;
