@@ -86,13 +86,17 @@
     marker.style.borderColor = color.fg;
     touchArea.append(marker);
     const rect = touchArea.getBoundingClientRect();
-    const touch = { color, marker, x: e.clientX, y: e.clientY };
+    const playerNumber = touches.size + 1;
+    const markerLabel = document.createElement("span");
+    markerLabel.className = "finger-number";
+    markerLabel.textContent = playerNumber;
+    marker.append(markerLabel);
+    const touch = { color, marker, x: e.clientX, y: e.clientY, playerNumber };
     touches.set(e.pointerId, touch);
     positionMarker(touch, e.clientX - rect.left, e.clientY - rect.top);
     emptyState.hidden = true;
-    $("statusText").textContent = "In attesa della scelta…";
-    $("participantCount").textContent = `${touches.size} ${touches.size === 1 ? "partecipante" : "partecipanti"}`;
-    $("instruction").textContent = "Tenete le dita appoggiate";
+    $("statusText").textContent = "";
+    $("participantCount").textContent = "";
     if (timer === null) {
       timer = setTimeout(resolveRound, DRAW_DELAY);
     }
@@ -177,16 +181,15 @@
   function showWinnerOverlay(touch) {
     winnerOverlay = document.createElement("div");
     winnerOverlay.className = "winner-overlay";
+    winnerOverlay.style.background = touch.color.bg;
     touchArea.append(winnerOverlay);
+    touch.marker.classList.add("winner-marker");
     updateWinnerOverlay(touch);
   }
 
   function updateWinnerOverlay(touch) {
     const rect = touchArea.getBoundingClientRect();
-    const x = touch.x - rect.left;
-    const y = touch.y - rect.top;
-    const color = touch.color.bg;
-    winnerOverlay.style.background = "radial-gradient(circle 48px at " + x + "px " + y + "px, transparent 0 47px, " + color + " 49px)";
+    positionMarker(touch, touch.x - rect.left, touch.y - rect.top);
   }
 
   function render() {
@@ -195,11 +198,7 @@
     $("statusText").textContent = "Scelta effettuata";
     $("participantCount").textContent = `${participants.length} ${participants.length === 1 ? "partecipante" : "partecipanti"}`;
     results.replaceChildren();
-    if (mode === "first") {
-      results.append(makeChip("✓", "SCELTO", "Dito estratto a caso", palette[0], true));
-      $("instruction").textContent = "Questo è il dito scelto!";
-      return;
-    }
+    if (mode === "first") return;
     participants.forEach(p => {
       let color, number, caption, detail = "";
       if (mode === "order") {
@@ -207,11 +206,11 @@
         number = p.order; caption = ordinal(p.order); detail = "ordine casuale";
       } else {
         color = palette[p.team % palette.length];
-        number = p.order; caption = `Squadra ${p.team + 1}`; detail = color.name;
+        number = p.order; caption = `Squadra ${p.team + 1}`; detail = "";
       }
       results.append(makeChip(number, caption, detail, color, false));
     });
-    $("instruction").textContent = mode === "order" ? "Ecco l'ordine casuale!" : "Ecco le squadre!";
+    $("instruction").textContent = "";
   }
 
   function makeChip(number, caption, detail, color, winner) {
@@ -221,7 +220,7 @@
     const n = document.createElement("span"); n.className = "number"; n.textContent = number;
     const c = document.createElement("span"); c.className = "caption"; c.textContent = caption;
     const d = document.createElement("span"); d.className = "detail"; d.textContent = detail;
-    el.append(n, c, d); return el;
+    el.append(n, c); if (detail) el.append(d); return el;
   }
   function ordinal(n) { return `${n}°`; }
 
