@@ -1,0 +1,12 @@
+{
+  "name": "Finger Chooser",
+  "short_name": "Finger Chooser",
+  "description": "Scegli chi inizia, metti in ordine i partecipanti o dividili in squadre.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f8fc",
+  "theme_color": "#f5f6ff",
+  "icons": [{"src":"icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
